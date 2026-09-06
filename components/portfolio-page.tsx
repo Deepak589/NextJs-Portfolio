@@ -216,6 +216,55 @@ export function PortfolioPage() {
   const progressRef = useRef<HTMLDivElement>(null);
   useReveal();
 
+  // Smooth scrolling is enabled only after the initial load has settled, so a
+  // reload onto a #hash lands there instantly rather than visibly gliding down
+  // the page. Browser scroll restoration is handed back for back/forward.
+  useEffect(() => {
+    const html = document.documentElement;
+    const entries = performance.getEntriesByType("navigation");
+    const isReload = entries.length
+      ? (entries[0] as PerformanceNavigationTiming).type === "reload"
+      : false;
+
+    // A reload starts at the top, whatever the previous position or #hash was.
+    // The stale hash is dropped so the address bar matches what is on screen;
+    // opening a #section link directly still works, it is only reloads that
+    // reset. The inline script in the layout stops the browser restoring, but
+    // restoration can land after hydration, so reset explicitly too.
+    if (isReload) {
+      if (window.location.hash) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+      window.scrollTo(0, 0);
+    }
+
+    let raf = 0;
+    const settle = () => {
+      raf = requestAnimationFrame(() => {
+        html.classList.add("scroll-smooth-ready");
+        // Hand restoration back only now that this load has settled, so
+        // back/forward navigation keeps its position as usual.
+        if ("scrollRestoration" in history) {
+          history.scrollRestoration = "auto";
+        }
+      });
+    };
+
+    if (document.readyState === "complete") {
+      settle();
+    } else {
+      window.addEventListener("load", settle, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener("load", settle);
+      if (raf) {
+        cancelAnimationFrame(raf);
+      }
+      html.classList.remove("scroll-smooth-ready");
+    };
+  }, []);
+
   // Progress bar writes directly to the node, rAF-throttled. Using state here
   // re-rendered the whole page on every scroll event.
   useEffect(() => {

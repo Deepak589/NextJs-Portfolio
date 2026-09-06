@@ -31,6 +31,16 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+// Runs before the browser restores scroll position. Only a reload is
+// suppressed - back/forward keeps its restoration, which the page re-enables
+// once it mounts.
+const SCROLL_INIT = `(function(){try{
+if(!("scrollRestoration" in history))return;
+var e=performance.getEntriesByType("navigation");
+var reload=e.length?e[0].type==="reload":(performance.navigation&&performance.navigation.type===1);
+if(reload)history.scrollRestoration="manual";
+}catch(_){}})();`;
+
 export const metadata: Metadata = {
   title: "Deepak Katukuri | Portfolio",
   description:
@@ -73,6 +83,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${syne.variable} ${bebasNeue.variable} ${jetbrainsMono.variable}`}
     >
       <body>
+        <script dangerouslySetInnerHTML={{ __html: SCROLL_INIT }} />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[10000] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-black"
