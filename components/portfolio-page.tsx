@@ -122,44 +122,114 @@ const timelineData: TimelineItem[] = [
 
 const projectCards = [
   {
-    title: "NutriMind Recommendation Platform",
+    title: "RAG Pipeline, Built Stage by Stage",
     description:
-      "An ML-powered food recommendation concept that blends user preferences, health signals, and explainable ranking logic into personalised suggestions.",
-    tags: ["Python", "Recommenders", "FastAPI", "Postgres"],
+      "Retrieval-augmented generation rebuilt from scratch, one knob per stage, with every change kept or reverted on an eval number. Hybrid BM25 + dense retrieval over contextually-blurbed chunks reaches recall@5 0.833 on the 55-question golden set; the cross-encoder reranker was dropped because it measurably hurt recall@1.",
+    tags: ["Python", "BM25 + Dense", "LangChain", "pgvector"],
+    href: "https://github.com/Deepak589/RAG_pipeline",
     accent: "from-blue-400/30 via-violet-400/15 to-transparent",
   },
   {
-    title: "Insurance Workflow Optimisation",
+    title: "Anti-Inflammatory Nutrition App",
     description:
-      "A backend systems case study grounded in production work: schema-heavy workflows, performance tuning, and domain-driven release execution for enterprise insurance software.",
-    tags: ["PL/SQL", "Java", "OneShield", "Enterprise"],
+      "A full-stack food and symptom tracker: FastAPI service with a rule-engine recommender, anti-inflammatory scoring, medication interaction filters and USDA nutrient mapping, behind a React dashboard for meal logs, symptom trends and weekly adherence.",
+    tags: ["FastAPI", "Postgres", "Alembic", "React", "Docker"],
+    href: "https://github.com/Deepak589/RA_project",
     accent: "from-cyan-400/24 via-sky-400/12 to-transparent",
   },
   {
-    title: "AI Operations Assistant",
+    title: "Food Image-to-Recipe Retrieval",
     description:
-      "A portfolio direction focused on AI-powered workflows: retrieval, summarisation, and task orchestration for operational teams that need speed without losing trust.",
-    tags: ["OpenAI API", "RAG", "Agents", "Automation"],
+      "Cross-modal retrieval that finds the right recipe from a photo. A frozen CLIP image tower and a DistilBERT recipe tower are trained into one 1024-d joint space with symmetric InfoNCE, with cross-attention and ingredients-only fusion ablations scored on medR and R@1/5/10 in both directions.",
+    tags: ["PyTorch", "CLIP", "DistilBERT", "Contrastive Learning"],
+    href: "https://github.com/Deepak589/ML_Final_project",
     accent: "from-fuchsia-400/22 via-indigo-400/12 to-transparent",
+  },
+  {
+    title: "Auditing AI-Generated ESG Scores",
+    description:
+      "How far can you trust a machine-generated sustainability score? Five research questions over 503 S&P 500 firms found the four risk dimensions rank companies almost independently (mean Spearman 0.12), greenwashing text cuts classifier F1 from 0.72 to 0.53, and a surrogate reproduces a closed vendor model at 88% accuracy.",
+    tags: ["Python", "NLP", "Fairness Audit", "Research"],
+    href: "https://github.com/Deepak589/Elective_AI_sustanibality",
+    accent: "from-emerald-400/24 via-teal-400/12 to-transparent",
+  },
+  {
+    title: "Applied ML Notebook Set",
+    description:
+      "Three end-to-end problems, each taken past the notebook. Intracranial hemorrhage detection fine-tunes an EfficientNetB0 on CT scans to ROC-AUC 0.978 with test-time augmentation; delivery-time prediction pairs Optuna-tuned random forests with Haversine route features; a movie recommender rounds it out, all served through Streamlit apps.",
+    tags: ["PyTorch", "timm", "scikit-learn", "Optuna", "Streamlit"],
+    href: "https://github.com/Deepak589/ML-projects",
+    accent: "from-amber-400/24 via-orange-400/12 to-transparent",
   },
 ];
 
 const skills = [
   {
-    title: "Languages & Backend",
-    items: ["Python", "Java", "PL/SQL", "SQL", "FastAPI", "REST APIs"],
+    title: "Languages",
+    items: ["Python", "SQL", "PL/SQL", "Core Java", "C++"],
   },
   {
-    title: "Data & ML",
-    items: ["Pandas", "NumPy", "scikit-learn", "BERT", "Computer Vision", "EDA"],
+    title: "Deep Learning",
+    items: [
+      "PyTorch",
+      "TensorFlow",
+      "CNNs",
+      "EfficientNet",
+      "Neural Networks",
+      "Fine-Tuning",
+      "timm",
+      "Hugging Face",
+    ],
   },
   {
-    title: "Platforms & Tools",
-    items: ["Docker", "Git", "PostgreSQL", "Redis", "OneShield", "IBM Watson"],
+    title: "LLM & RAG",
+    items: [
+      "RAG",
+      "LangChain",
+      "Hybrid Retrieval (BM25 + Dense)",
+      "RRF",
+      "Reranking",
+      "pgvector",
+      "CLIP",
+      "DistilBERT",
+      "sentence-transformers",
+      "Contrastive Learning",
+      "Embeddings",
+      "Ollama",
+      "Prompt Engineering",
+    ],
   },
   {
-    title: "AI & Recommenders",
-    items: ["LangChain", "OpenAI API", "RAG", "Collaborative Filtering", "Prompt Design"],
+    title: "Machine Learning",
+    items: [
+      "scikit-learn",
+      "Classification",
+      "Ensembles",
+      "NumPy",
+      "Pandas",
+      "Matplotlib",
+      "Seaborn",
+    ],
+  },
+  {
+    title: "Full-Stack",
+    items: [
+      "React",
+      "Vite",
+      "Tailwind CSS",
+      "React Query",
+      "FastAPI",
+      "PostgreSQL",
+      "Recharts",
+    ],
+  },
+  {
+    title: "MLOps & Cloud",
+    items: ["Docker", "Kubernetes", "AWS", "CI/CD", "Model Deployment"],
+  },
+  {
+    title: "Tools",
+    items: ["Git/GitHub", "pytest", "Jupyter", "IBM Watson"],
   },
 ];
 
@@ -553,8 +623,9 @@ export function PortfolioPage() {
             Featured Projects
           </h2>
           <p data-reveal="true" className="mt-4 max-w-2xl text-slate-300 leading-8">
-            A mix of portfolio-ready ML work, enterprise backend experience translated into case
-            studies, and AI workflow experiments that aim for useful, product-shaped outcomes.
+            Five things I built and shipped to GitHub — retrieval systems, a full-stack health app,
+            cross-modal ML, and audits that end in a number rather than a claim. Every card links
+            straight to its repository.
           </p>
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
             {projectCards.map((project, index) => (
@@ -563,8 +634,9 @@ export function PortfolioPage() {
                   title={project.title}
                   description={project.description}
                   tags={project.tags}
+                  href={project.href}
                   accent={project.accent}
-                  className={cn(index === 1 && "lg:translate-y-6")}
+                  className={cn(index % 3 === 1 && "lg:translate-y-6")}
                 />
               </div>
             ))}
