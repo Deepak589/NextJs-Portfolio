@@ -226,16 +226,23 @@ export function PortfolioPage() {
       ? (entries[0] as PerformanceNavigationTiming).type === "reload"
       : false;
 
-    // A reload starts at the top, whatever the previous position or #hash was.
-    // The stale hash is dropped so the address bar matches what is on screen;
-    // opening a #section link directly still works, it is only reloads that
-    // reset. The inline script in the layout stops the browser restoring, but
-    // restoration can land after hydration, so reset explicitly too.
+    // On reload: land on the targeted section if the URL names one, otherwise
+    // start at the top. Either way it is instant, because smooth scrolling is
+    // still switched off at this point - the browser used to animate its way
+    // down to the anchor, which is what read as the page jumping around.
+    //
+    // The inline script in the layout stops the browser restoring the previous
+    // offset. That also suppresses its own jump to the fragment on reload, so
+    // position the section here instead.
     if (isReload) {
-      if (window.location.hash) {
-        history.replaceState(null, "", window.location.pathname + window.location.search);
+      const targetId = window.location.hash.slice(1);
+      const target = targetId ? document.getElementById(targetId) : null;
+
+      if (target) {
+        target.scrollIntoView();
+      } else {
+        window.scrollTo(0, 0);
       }
-      window.scrollTo(0, 0);
     }
 
     let raf = 0;
