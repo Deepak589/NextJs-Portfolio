@@ -25,6 +25,12 @@
   box-sizing: border-box;
 }
 
+html {
+  /* The masthead is fixed and 3.5rem tall; without this, anchored sections
+     scroll to the very top of the viewport and sit underneath it. */
+  scroll-padding-top: 4.5rem;
+}
+
 html.scroll-smooth-ready {
   scroll-behavior: smooth;
 }
