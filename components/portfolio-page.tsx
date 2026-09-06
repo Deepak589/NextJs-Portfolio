@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BrainCircuit,
   Database,
@@ -194,6 +194,7 @@ function useReveal() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
           }
         });
       },
@@ -212,19 +213,37 @@ function useReveal() {
 export function PortfolioPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedTimelineId, setSelectedTimelineId] = useState(timelineData[0].id);
-  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
   useReveal();
 
+  // Progress bar writes directly to the node, rAF-throttled. Using state here
+  // re-rendered the whole page on every scroll event.
   useEffect(() => {
-    const onScroll = () => {
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
       const total = document.documentElement.scrollHeight - window.innerHeight;
       const scrolled = total > 0 ? (window.scrollY / total) * 100 : 0;
-      setProgress(scrolled);
+      if (progressRef.current) {
+        progressRef.current.style.width = `${scrolled}%`;
+      }
     };
 
-    onScroll();
+    const onScroll = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(update);
+      }
+    };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, []);
 
   const selectedExperience = useMemo(
@@ -244,11 +263,11 @@ export function PortfolioPage() {
       </div>
 
       <div
-        className="fixed left-0 top-0 z-[9997] h-[2px] bg-gradient-to-r from-blue-400 via-violet-400 to-pink-400 transition-all duration-100"
-        style={{ width: `${progress}%` }}
+        ref={progressRef}
+        className="fixed left-0 top-0 z-[9997] h-[2px] w-0 bg-gradient-to-r from-blue-400 via-violet-400 to-pink-400"
       />
 
-      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-xl">
+      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-[#04070f]/85">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <a href="#hero" className="font-mono-display text-sm font-semibold tracking-widest text-white">
             DK<span className="text-blue-400">.</span>

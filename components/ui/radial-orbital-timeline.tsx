@@ -35,7 +35,26 @@ export function RadialOrbitalTimeline({
   const [rotationAngle, setRotationAngle] = useState(0);
   const [autoRotate, setAutoRotate] = useState(true);
   const [centerOffset] = useState({ x: 0, y: 0 });
+  const shellRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const [isOnScreen, setIsOnScreen] = useState(false);
+
+  // Don't spend frames rotating a widget nobody can see.
+  useEffect(() => {
+    const node = shellRef.current;
+    if (!node) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsOnScreen(entry.isIntersecting),
+      { threshold: 0.05 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
 
   useEffect(() => {
     const active = timelineData.find((item) => item.id === selectedId);
@@ -49,20 +68,20 @@ export function RadialOrbitalTimeline({
   }, [selectedId, timelineData]);
 
   useEffect(() => {
-    if (!autoRotate) {
+    if (!autoRotate || !isOnScreen) {
       return;
     }
 
     intervalRef.current = setInterval(() => {
-      setRotationAngle((prev) => (prev + 0.2) % 360);
-    }, 50);
+      setRotationAngle((prev) => (prev + 0.3) % 360);
+    }, 75);
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [autoRotate]);
+  }, [autoRotate, isOnScreen]);
 
   const selectedItem = useMemo(
     () => timelineData.find((item) => item.id === selectedId) ?? timelineData[0],
@@ -74,7 +93,7 @@ export function RadialOrbitalTimeline({
 
   const calculateNodePosition = (index: number, total: number) => {
     const angle = ((index / total) * 360 + rotationAngle) % 360;
-    const radius = 190;
+    const radius = 148;
     const radian = (angle * Math.PI) / 180;
 
     return {
@@ -86,11 +105,11 @@ export function RadialOrbitalTimeline({
   };
 
   return (
-    <div className="orbital-shell">
-      <div className="relative mx-auto flex h-[420px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-[2rem] border border-white/10 bg-black/45 p-6 backdrop-blur-xl">
+    <div className="orbital-shell" ref={shellRef}>
+      <div className="relative mx-auto flex h-[420px] w-full max-w-[520px] items-center justify-center rounded-[2rem] border border-white/10 bg-[#070b16]/70 p-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(118,168,255,0.12),transparent_55%)]" />
         <div className="absolute h-24 w-24 rounded-full border border-white/10 bg-white/[0.03]" />
-        <div className="absolute h-[380px] w-[380px] rounded-full border border-white/10" />
+        <div className="absolute h-[296px] w-[296px] rounded-full border border-white/10" />
         <div className="absolute h-14 w-14 rounded-full bg-gradient-to-br from-blue-400 via-indigo-400 to-violet-300 shadow-[0_0_50px_rgba(99,102,241,0.45)]">
           <div className="absolute inset-0 animate-ping rounded-full bg-blue-300/20" />
         </div>

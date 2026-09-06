@@ -41,8 +41,6 @@ export function SpecialText({
 
   const [hasStarted, setHasStarted] = useState(() => !inView && delay <= 0);
   const [displayText, setDisplayText] = useState(" ".repeat(text.length));
-  const [currentPhase, setCurrentPhase] = useState<"phase1" | "phase2">("phase1");
-  const [animationStep, setAnimationStep] = useState(0);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,77 +68,73 @@ export function SpecialText({
       return;
     }
 
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
+    // Single interval for the whole sequence. Step state lives in refs so a
+    // step never re-runs this effect (which previously rebuilt the timer on
+    // every character and made the reveal take many times longer than `speed`).
+    let phase: "phase1" | "phase2" = "phase1";
+    let step = 0;
+    // Fixed tick budget per phase. Stepping per-character meant a long string
+    // (the 67-char tagline) took 4 * length ticks = over six seconds to read.
+    const PHASE_STEPS = 16;
 
-    const runPhase1 = () => {
-      const maxSteps = text.length * 2;
-      const currentLength = Math.min(animationStep + 1, text.length);
+    const tick = () => {
       const chars: string[] = [];
 
-      for (let index = 0; index < currentLength; index += 1) {
-        chars.push(getRandomChar(index > 0 ? chars[index - 1] : undefined));
+      if (phase === "phase1") {
+        const currentLength = Math.min(
+          Math.ceil(((step + 1) / PHASE_STEPS) * text.length),
+          text.length,
+        );
+        for (let index = 0; index < currentLength; index += 1) {
+          chars.push(getRandomChar(index > 0 ? chars[index - 1] : undefined));
+        }
+        for (let index = currentLength; index < text.length; index += 1) {
+          chars.push("\u00A0");
+        }
+        setDisplayText(chars.join(""));
+
+        step += 1;
+        if (step >= PHASE_STEPS) {
+          phase = "phase2";
+          step = 0;
+        }
+        return;
       }
 
-      for (let index = currentLength; index < text.length; index += 1) {
-        chars.push("\u00A0");
-      }
-
-      setDisplayText(chars.join(""));
-
-      if (animationStep < maxSteps - 1) {
-        setAnimationStep((prev) => prev + 1);
-      } else {
-        setCurrentPhase("phase2");
-        setAnimationStep(0);
-      }
-    };
-
-    const runPhase2 = () => {
-      const revealedCount = Math.floor(animationStep / 2);
-      const chars: string[] = [];
-
+      const revealedCount = Math.floor((step / PHASE_STEPS) * text.length);
       for (let index = 0; index < revealedCount && index < text.length; index += 1) {
         chars.push(text[index]);
       }
-
       if (revealedCount < text.length) {
-        chars.push(animationStep % 2 === 0 ? "_" : getRandomChar());
+        chars.push(step % 2 === 0 ? "_" : getRandomChar());
       }
-
       for (let index = chars.length; index < text.length; index += 1) {
         chars.push(getRandomChar());
       }
-
       setDisplayText(chars.join(""));
 
-      if (animationStep < text.length * 2 - 1) {
-        setAnimationStep((prev) => prev + 1);
-      } else {
+      step += 1;
+      if (step >= PHASE_STEPS) {
         setDisplayText(text);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }
     };
 
-    intervalRef.current = setInterval(() => {
-      if (currentPhase === "phase1") {
-        runPhase1();
-      } else {
-        runPhase2();
-      }
-    }, speed);
+    intervalRef.current = setInterval(tick, speed);
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [animationStep, currentPhase, hasStarted, speed, text]);
+  }, [hasStarted, speed, text]);
 
   useEffect(() => {
     setDisplayText(" ".repeat(text.length));
-    setCurrentPhase("phase1");
-    setAnimationStep(0);
   }, [text]);
 
   return (

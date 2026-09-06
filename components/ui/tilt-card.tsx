@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -23,25 +23,40 @@ export function TiltCard({
   accent = "from-blue-400/30 via-indigo-400/12 to-transparent",
   className,
 }: TiltCardProps) {
-  const [transform, setTransform] = useState("perspective(1200px) rotateX(0deg) rotateY(0deg)");
+  const cardRef = useRef<HTMLElement>(null);
+  const frameRef = useRef(0);
+
+  // Tilt is written straight to the node. Holding it in state re-rendered the
+  // card (and its whole subtree) on every mousemove event.
+  const applyTilt = (transform: string) => {
+    if (frameRef.current) {
+      return;
+    }
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = 0;
+      if (cardRef.current) {
+        cardRef.current.style.transform = transform;
+      }
+    });
+  };
 
   return (
     <article
+      ref={cardRef}
       className={cn(
-        "group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.25)] transition-transform duration-300",
+        "group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_80px_rgba(0,0,0,0.25)] transition-transform duration-300 will-change-transform",
         className,
       )}
-      style={{ transform }}
       onMouseMove={(event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         const offsetX = (event.clientX - rect.left) / rect.width - 0.5;
         const offsetY = (event.clientY - rect.top) / rect.height - 0.5;
-        setTransform(
+        applyTilt(
           `perspective(1200px) rotateX(${offsetY * -8}deg) rotateY(${offsetX * 10}deg) translateY(-4px)`,
         );
       }}
       onMouseLeave={() =>
-        setTransform("perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)")
+        applyTilt("perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)")
       }
     >
       <div className={cn("absolute inset-0 bg-gradient-to-br opacity-80", accent)} />
