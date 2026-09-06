@@ -122,10 +122,10 @@ const timelineData: TimelineItem[] = [
 
 const projectCards = [
   {
-    title: "RAG Pipeline, Built Stage by Stage",
+    title: "Agentic RAG with a Corrective Loop",
     description:
-      "Retrieval-augmented generation rebuilt from scratch, one knob per stage, with every change kept or reverted on an eval number. Hybrid BM25 + dense retrieval over contextually-blurbed chunks reaches recall@5 0.833 on the 55-question golden set; the cross-encoder reranker was dropped because it measurably hurt recall@1.",
-    tags: ["Python", "BM25 + Dense", "LangChain", "pgvector"],
+      "A retrieval pipeline that argues with itself. A LangGraph state machine grades every document Claude retrieves, rewrites the query and searches again when the evidence is thin, and refuses outright when 87k indexed sections genuinely cannot answer — the failure mode single-shot RAG never admits to. Scored end to end: 100% correct refusal, 69.5% correctness on a 160-question golden set.",
+    tags: ["LangGraph", "Claude", "Agentic RAG", "pgvector + HNSW", "Evaluation"],
     href: "https://github.com/Deepak589/RAG_pipeline",
     accent: "from-blue-400/30 via-violet-400/15 to-transparent",
   },
