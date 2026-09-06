@@ -141,13 +141,13 @@ a {
    touches the main thread — replaces the old per-frame SVG filter. */
 @keyframes ethereal-drift {
   0% {
-    transform: scale(1.06) translate3d(-1.5%, -1%, 0) rotate(0.4deg);
+    transform: scale(1.06) translate3d(-3%, -2%, 0) rotate(0.8deg);
   }
   50% {
-    transform: scale(1.12) translate3d(1.5%, 1.2%, 0) rotate(-0.4deg);
+    transform: scale(1.18) translate3d(3%, 2.4%, 0) rotate(-0.8deg);
   }
   100% {
-    transform: scale(1.06) translate3d(-1.5%, -1%, 0) rotate(0.4deg);
+    transform: scale(1.06) translate3d(-3%, -2%, 0) rotate(0.8deg);
   }
 }
 

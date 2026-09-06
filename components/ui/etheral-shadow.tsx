@@ -53,7 +53,7 @@ export function EtherealShadow({
 }: EtherealShadowProps) {
   const animationEnabled = Boolean(animation && animation.scale > 0);
   // higher speed -> shorter cycle, clamped to a slow, ambient range
-  const driftSeconds = animation ? mapRange(animation.speed, 1, 100, 90, 28) : 0;
+  const driftSeconds = animation ? mapRange(animation.speed, 1, 100, 60, 12) : 0;
 
   return (
     <div
